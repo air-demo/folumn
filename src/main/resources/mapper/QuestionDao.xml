@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.air.folumn.Dao.QuestionDao">
+
+    <insert id="create">
+        insert into question (title,description,gmt_create,gmt_modified,creator,tag)
+        values (#{title},#{description},#{gmtCreate},#{gmtModified},#{creator},#{tag})
+    </insert>
+
+    <resultMap id="QuestionDTO" type="com.air.folumn.dto.QuestionDTO">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="tag" column="tag"/>
+        <result property="creator" column="creator"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="likeCount" column="like_count"/>
+        <association property="user" javaType="com.air.folumn.entity.User">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="accountId" column="account_id"/>
+            <result property="token" column="token"/>
+            <result property="gmtCreate" column="gmt_create"/>
+            <result property="gmtModified" column="gmt_modified"/>
+            <result property="avatarUrl" column="avatar_url"/>
+        </association>
+    </resultMap>
+
+    <select id="getListAll" resultMap="QuestionDTO">
+        select a.id,a.title,a.tag,a.description,a.gmt_create,a.view_count,a.comment_count,a.like_count,
+        b.avatar_url
+        from question a join user b where a.creator=b.id order by a.gmt_create desc
+    </select>
+
+    <select id="getByDTOId" resultMap="QuestionDTO">
+        select * from question a join user b where a.id = #{id} and a.creator = b.id
+    </select>
+
+    <select id="getById" resultType="com.air.folumn.entity.Question">
+        select * from question a where a.id = #{id}
+    </select>
+
+
+    <update id="update">
+        update question set title=#{title},description=#{description},gmt_modified=#{gmtModified},tag=#{tag} where id=#{id}
+    </update>
+
+    <update id="incView" parameterType="com.air.folumn.entity.Question">
+        update question
+        set
+        VIEW_COUNT = VIEW_COUNT + #{viewCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+
+    <update id="incCommentCount" parameterType="com.air.folumn.entity.Question">
+        update question
+        set
+        COMMENT_COUNT = COMMENT_COUNT + #{commentCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+
+
+    <resultMap id="BaseResultMap" type="com.air.folumn.entity.Question">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="tag" column="tag"/>
+        <result property="creator" column="creator"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="likeCount" column="like_count"/>
+    </resultMap>
+    <select id="selectRelate" parameterType="com.air.folumn.entity.Question" resultMap="BaseResultMap">
+        select *
+        from question
+        where id != #{id} and tag regexp #{tag}
+    </select>
+
+    <select id="list" resultType="com.air.folumn.entity.Question">
+       select a.id,a.title,a.tag,a.description,a.gmt_create,a.view_count,a.comment_count,a.like_count
+       from question a,user b
+       where b.id=#{id} and a.creator=b.id
+    </select>
+    
+    <select id="selectBySearch" resultMap="QuestionDTO">
+        select a.id,a.title,a.tag,a.description,a.gmt_create,a.view_count,a.comment_count,a.like_count,
+        b.avatar_url
+        from question a join user b where a.creator=b.id and a.title like concat('%',#{search},'%')
+    </select>
+</mapper>

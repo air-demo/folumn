@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.air.folumn.Dao.CommentDao">
+
+
+    <resultMap id="CommentDTO" type="com.air.folumn.dto.CommentDTO">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="type" column="type"/>
+        <result property="commentator" column="commentator"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="content" column="content"/>
+        <association property="user" javaType="com.air.folumn.entity.User">
+            <result property="name" column="name"/>
+            <result property="accountId" column="account_id"/>
+            <result property="token" column="token"/>
+            <result property="gmtCreate" column="gmt_create"/>
+            <result property="gmtModified" column="gmt_modified"/>
+            <result property="avatarUrl" column="avatar_url"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert">
+        insert into comment(id,parent_id,type,commentator,gmt_create,gmt_modified,like_count,content,comment_Count)
+        values (#{id},#{parentId},#{type},#{commentator},#{gmtCreate},#{gmtModified},#{likeCount},#{content},#{commentCount})
+    </insert>
+
+    <select id="selectById" resultType="com.air.folumn.entity.Comment">
+        select * from comment where id = #{id};
+    </select>
+
+    <select id="listByQuestionId" resultMap="CommentDTO">
+        select a.id,a.parent_id,a.type,a.commentator,a.gmt_Create,a.gmt_modified,a.like_Count,a.content,a.comment_Count,c.name,c.avatar_url
+        from comment a,question b,user c where a.parent_id=#{id} and a.type=#{type} and a.commentator=c.id
+    </select>
+
+
+    <update id="incCommentCount" parameterType="com.air.folumn.entity.Comment">
+        update comment
+        set
+        COMMENT_COUNT = COMMENT_COUNT + #{commentCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+
+    <update id="updateLikeCount" parameterType="com.air.folumn.entity.Comment">
+        update comment
+        set
+        like_count = like_count + #{likeCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
+</mapper>

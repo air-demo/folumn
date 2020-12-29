@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.air.folumn.Dao.NotificationDao">
+    <insert id="insert" parameterType="com.air.folumn.entity.Notification">
+        insert into notification (id,notifier,receiver,outerId,type,status,gmt_create,notifier_name,outer_title)
+        values(#{id},#{notifier},#{receiver},#{outerId},#{type},#{status},#{gmtCreate},#{notifierName},#{outerTitle})
+    </insert>
+
+    <select id="list" resultType="com.air.folumn.entity.Notification">
+        select a.id,a.notifier,a.receiver,a.outerId,a.type,a.status,a.gmt_create,a.notifier_name,a.outer_title
+        from notification a,user b
+        where b.id=#{id} and a.receiver=b.id
+    </select>
+
+    <select id="unreadCount" resultType="java.lang.Integer">
+        select count(*) from notification a,user b where b.id=#{id} and a.receiver=b.id and a.status=0
+    </select>
+
+    <select id="selectById" resultType="com.air.folumn.entity.Notification">
+        select * from notification where id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.air.folumn.entity.Notification">
+        update notification
+        set status=1
+        where id=#{id}
+    </update>
+</mapper>
